@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search UID</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+    <h1>My web</h1><nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Menu</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/admins/home">Home<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="/admins/logout">Logout</a>
+            </li>
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form>
+        </div>
+      </nav>
+    <h2>Search UID</h2>
+    <div style="margin-left: 50px;">
+        <m>Use uid=0 to get all information user in database["users"]</m>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for m in messages %}
+                    <P>{{m}}</P>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    <div class = "container mt-5">
+      <form id="deleteForm">
+        <div class="form-group">
+            <label for="UserID">UserID:</label>
+            <input type="number" class="form-control" id="userid" name="userid" required>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="findUser()">Find</button>
+        <button type="button" class="btn btn-danger" onclick="deleteUser()">Delete User</button>
+      </form>
+    </div>
+    <div id="inforUser"></div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" 
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" 
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" 
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script>
+        function findUser() {
+            const userid = document.getElementById("userid").value;
+            if (userid != 0) {
+              fetch ('http://127.0.0.1:5000/admins/get_infor_user_id='+userid)
+              .then(response => response.json())
+              .then(data => {
+                  const userInfoDiv = document.getElementById('inforUser'); 
+                        userInfoDiv.innerHTML = `<div class="card mb-2">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">UserID: ${data._id}</h5>
+                                                        <p class="card-text">Name: ${data.name}</p>
+                                                        <p class="card-text">Email: ${data.email}</p>
+                                                    </div>
+                                                </div>`;
+                })   
+            } else {
+              fetch ('http://127.0.0.1:5000/admins/get_infor_user_id='+userid)
+              .then(response=>response.json())
+              .then(data=>{
+                data.forEach(user=>{
+                  const userInfoDiv = document.getElementById('inforUser'); 
+                        userInfoDiv.innerHTML += `<div class="card mb-2">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">UserID: ${user._id}</h5>
+                                                        <p class="card-text">Name: ${user.name}</p>
+                                                        <p class="card-text">Email: ${user.email}</p>
+                                                    </div>
+                                                </div>`;
+                })    
+              })
+            }
+        }
+        function deleteUser() {
+            const userid = document.getElementById("userid").value;
+            const isConfirmed = confirm("Are you sure to delete this userId?");
+            if (isConfirmed) {
+              fetch('http://127.0.0.1:5000/admins/delete_user_id='+userid, {
+                method: 'DELETE',
+                headers: {
+                      'Content-Type': 'application/json',
+                },
+              })
+              .then(response=> {
+                if(response.ok) {
+                  alert("Deleted.");
+                } else {
+                  alert("Failed. Check again.")
+                }
+              })
+              .catch(error=>{
+                console.error('Error:', error);
+              });
+            }
+        }
+    </script>
+</body>
+</html>

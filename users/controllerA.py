@@ -66,22 +66,25 @@ def admin_get_information_user(uid):
 def get_info():
     return render_template("adminSearch.html")
 
-@admins.route("/admins/change_password", methods=['GET', 'POST'])
+@admins.route("/admins/change_password", methods=['GET', 'PUT'])
 def admin_change_password():
     if "current_admin" not in session:
         flash("You are not logged in", "info")
         return redirect(url_for("admins.admin_login"))
     else:
-        if request.method == 'POST':
-            new_pass = request.form.get("new_password")
-            if new_pass:
-                current_admin = session["current_admin"]
-                current_admin["password"] = new_pass
-                admin_change_password_service(current_admin)
-                flash("You have already changed password", "info")
-                return redirect(url_for("admins.admin_logout"))
+        if request.method == 'PUT':
+            req = request.get_json()
+            if "current_password" not in req or "new_password" not in req:
+                flash("Current password and New password are required fields", "info")
             else:
-                flash("New password is required field", "info")
+                if req["current_password"] == session["current_admin"]["password"]:
+                    current_admin = session["current_admin"]
+                    current_admin["password"] = req["new_password"]
+                    admin_change_password_service(current_admin)
+                    return redirect(url_for("admins.admin_logout")), 200
+                else:
+                    flash("Password is invalid", "info")
+                    return render_template("changePasswordAd.html"), 400
         return render_template("changePasswordAd.html")
     
 @admins.route("/admins/add_new_admin", methods=['GET', 'POST'])

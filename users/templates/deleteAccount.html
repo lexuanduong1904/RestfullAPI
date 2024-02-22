@@ -60,7 +60,7 @@
           <script>
             function deleteAcc() {
             const current_password = document.getElementById("current_password").value;
-            const isConfirmed = confirm("Bạn có chắc chắn muốn xóa tài khoản?");
+            const isConfirmed = confirm("Are you sure you want to delete your account?");
             if (isConfirmed) {
                 fetch('http://127.0.0.1:5000/users/delete_account', {
                     method: 'DELETE',
@@ -72,9 +72,9 @@
                 .then(response => {
                     if (response.ok) {
                         window.location.href = '/users/logout';
-                        alert("Xóa tài khoản thành công!");
+                        alert("Account deleted successfully!");
                     } else {
-                        alert("Xóa tài khoản thất bại. Kiểm tra lại!");
+                        alert("You deleted failed. Please check again!");
                     }
                 })
                 .catch(error => {
